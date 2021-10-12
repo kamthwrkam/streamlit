@@ -24,8 +24,6 @@ import pydeck as pdk
 # SETTING PAGE CONFIG TO WIDE MODE
 st.set_page_config(layout="wide")
 
-#Title
-st.title('Origin-Destination (Sirapob Wutthinuntiwong)')
 
 # LAYING OUT THE TOP SECTION OF THE APP
 row1_1, row1_2 = st.columns((2,3))
@@ -100,54 +98,54 @@ def mapr(data, lat, lon, zoom):
     ))
 
 #data = df[df[DATE_TIME].dt.hour == hour_selected]
-data['timestart'] = pd.to_datetime(data['timestart'])
-data['timestop'] = pd.to_datetime(data['timestop'])
+data['begin'] = pd.to_datetime(data['begin'])
+data['finish'] = pd.to_datetime(data['finish'])
 
 # LAYING OUT THE TOP SECTION OF THE APP
-timestart = "timestart"
-timestop = "timestop"
-A = data[data[timestart].dt.hour <= hour_selected+3]
-B = data[data[timestop].dt.hour <= hour_selected+3]
-midpointA = (np.average(A["latstartl"]), np.average(A["lonstartl"]))
-midpointB = (np.average(B["latstop"]), np.average(B["lonstop"]))
+begin = "begin"
+finish = "finish"
+point_A = data[data[begin].dt.hour <= hour_selected+3]
+point_B = data[data[finish].dt.hour <= hour_selected+3]
+midpointA = (np.average(point_A["latstartl"]), np.average(point_A["lonstartl"]))
+midpointB = (np.average(point_B["latstop"]), np.average(point_B["lonstop"]))
 
 
 row2_1, row2_2= st.columns((1,1))
 with row2_1:
-    st.write('**Origin Dataframe Start** ',str(selected_date),'/1/2019')#str(selected_date)
-    dataA = A[['latstartl', 'lonstartl','timestart']]
+    st.write('**Starting Point** ',str(selected_date),'/1/2019')#str(selected_date)
+    dataA = point_A[['latstartl', 'lonstartl','begin']]
     st.dataframe(dataA)
 
 with row2_2:
-    st.write('**Destination Dataframe Stop** ',str(selected_date),'/1/2019')#str(selected_date)
-    dataB = B[['latstop','lonstop','timestop']]
+    st.write('**Terminal Point** ',str(selected_date),'/1/2019')#str(selected_date)
+    dataB = point_B[['latstop','lonstop','finish']]
     st.dataframe(dataB)
 
 row3_1, row3_2= st.columns((1,1))
 with row3_1:
-    st.write("**Origin location from %i:00 to %i:00**" % (hour_selected, (hour_selected+3) % 24))
+    st.write("**Starting Point from %i:00 to %i:00**" % (hour_selected, (hour_selected+3) % 24))
     mapl(dataA, midpointA[0], midpointA[1], 11)
 
 with row3_2:
-    st.write("**Destination location from %i:00 to %i:00**" % (hour_selected, (hour_selected+3) % 24))
+    st.write("**Terminal Point from %i:00 to %i:00**" % (hour_selected, (hour_selected+3) % 24))
     mapr(dataB, midpointB[0], midpointB[1], 11)
 
 
 # FILTERING DATA FOR THE HISTOGRAM #START
 filtered = data[
-    (data[timestart].dt.hour >= hour_selected) & (data[timestart].dt.hour < (hour_selected + 3))
+    (data[begin].dt.hour >= hour_selected) & (data[begin].dt.hour < (hour_selected + 3))
     ]
 
-hist = np.histogram(filtered[timestart].dt.minute, bins=60, range=(0, 60))[0]
+hist = np.histogram(filtered[begin].dt.minute, bins=60, range=(0, 60))[0]
 
 chart_data = pd.DataFrame({"minute": range(60), "volume": hist})
 
 # FILTERING DATA FOR THE HISTOGRAM #STOP
 filtered = data[
-    (data[timestop].dt.hour >= hour_selected) & (data[timestop].dt.hour < (hour_selected + 3))
+    (data[finish].dt.hour >= hour_selected) & (data[finish].dt.hour < (hour_selected + 3))
     ]
 
-hist = np.histogram(filtered[timestop].dt.minute, bins=60, range=(0, 60))[0]
+hist = np.histogram(filtered[finish].dt.minute, bins=60, range=(0, 60))[0]
 
 chart_data = pd.DataFrame({"minute": range(60), "volume": hist})
 
@@ -155,7 +153,7 @@ chart_data = pd.DataFrame({"minute": range(60), "volume": hist})
 
 st.write("")
 
-st.write("**Breakdown of coordinate per minute between %i:00 to %i:00**" % (hour_selected, (hour_selected + 3) % 24))
+st.write("**rest of coordinate from %i:00 to %i:00**" % (hour_selected, (hour_selected + 3) % 24))
 
 st.altair_chart(alt.Chart(chart_data)
     .mark_area(
@@ -165,6 +163,6 @@ st.altair_chart(alt.Chart(chart_data)
         y=alt.Y("volume:Q"),
         tooltip=['minute', 'volume']
     ).configure_mark(
-        opacity=0.2,
-        color='blue'
+        opacity=0.4,
+        color='red'
     ), use_container_width=True)
