@@ -25,8 +25,9 @@ import pydeck as pdk
 st.set_page_config(layout="wide")
 
 
+st.title("**Thanwarat Kheawdee**")
 
-# LAYING OUT THE TOP SECTION OF THE APP
+
 row1_1, row1_2 = st.columns((2,3))
 with row1_1:
     st.write('Select a date in January 2019')
@@ -97,7 +98,7 @@ def mapr(data, lat, lon, zoom):
             ),
         ]
     ))
-
+#FILTERING DATA
 #data = df[df[DATE_TIME].dt.hour == hour_selected]
 data['timestart'] = pd.to_datetime(data['timestart'])
 data['timestop'] = pd.to_datetime(data['timestop'])
